@@ -1,6 +1,6 @@
 import redis
 
-from config import Config
+from redis_proxy.config import Config
 
 
 class RedisClient():

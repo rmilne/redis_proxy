@@ -1,7 +1,9 @@
 import cachetools
+import logging
 
-from redis_client import RedisClient
+from redis_proxy.redis_client import RedisClient
 
+log = logging.getLogger()
 
 class RedisCacheManager():
     def __init__(self, config) -> None:
@@ -9,9 +11,15 @@ class RedisCacheManager():
         self.redis = RedisClient(config)
     
     def get(self, key: str) -> bytes:
-        return self.get_from_redis(key)
+        value = self.cache.get(key, None)
+        if value is None:
+            log.debug(f"cache miss for: {key}")
+            value = self._get_from_redis(key)
+        if value is not None:
+            self.cache[key] = value
+        return value
 
-    def get_from_redis(self, key: str) -> bytes:
+    def _get_from_redis(self, key: str) -> bytes:
         return self.redis.get(key)
 
     

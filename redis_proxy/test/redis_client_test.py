@@ -1,7 +1,7 @@
 import pytest
 
-from redis_proxy.redis_proxy import RedisProxy, Config
-from config import Config
+from ..__main__ import RedisProxy
+from ..config import Config
 
 @pytest.fixture
 def proxy() -> RedisProxy:
@@ -19,3 +19,4 @@ def test_is_http(proxy: RedisProxy):
     http_request = "GET /the_key HTTP/1.1\r\nHost: 127.0.0.1:8080\r\n\r\n"
     assert proxy.is_http(redis_request) == False
     assert proxy.is_http(http_request) == True
+

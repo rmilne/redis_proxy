@@ -4,11 +4,12 @@ import sys
 
 from typing import Optional
 
-from config import Config
-from cache import RedisCacheManager
+from .config import Config
+from .cache import RedisCacheManager
 
 log = logging.getLogger()
 
+NOT_FOUND = "HTTP/1.1 404 Not Found\r\n\r\n"
 
 class RedisProxy():
     def __init__(self, config: Config) -> None:
@@ -33,10 +34,8 @@ class RedisProxy():
         # TODO just read GET - decide what to do after.
         data = await reader.readuntil(bytes("\r\n\r\n", encoding='ascii'))
         request = data.decode()
-        log.debug(f"request: >{request}<")
+        log.debug(f"request: >{repr(request)}<")
 
-        
-        # TODO WORK
         key = self.parse_get_request(request)
         if key:
             value = self.manager.get(key)
@@ -44,14 +43,14 @@ class RedisProxy():
                 value_str = str(value.decode('utf-8'))
                 response = f"HTTP/1.1 200 OK\r\nContent-Length: {len(value_str)}\r\n\r\n{value_str}\r\n"
             else:
-                response = "HTTP/1.1 404 Not Found\r\n\r\n"
+                response = NOT_FOUND
         else:
-            response = "HTTP/1.1 404 Not Found\r\n\r\n"
+            response = NOT_FOUND
 
         # respond
         writer.write(bytes(response, encoding='ascii'))
         await writer.drain()
-        log.debug(f"responded: {response}")
+        log.debug(f"responded: {repr(response)}")
         writer.close()
 
         return response

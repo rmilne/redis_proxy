@@ -1,4 +1,5 @@
 
+# TODO - add parsing to init
 
 class Config():
     def __init__(self) -> None:

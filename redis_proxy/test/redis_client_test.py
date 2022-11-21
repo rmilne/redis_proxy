@@ -1,15 +1,7 @@
-import asyncio
 import pytest
-import socket
 
 from redis_proxy.redis_proxy import RedisProxy, Config
 from config import Config
-
-@pytest.fixture
-def loop():
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
 
 @pytest.fixture
 def proxy() -> RedisProxy:
@@ -17,7 +9,6 @@ def proxy() -> RedisProxy:
     conf.server_address = '0.0.0.0'
     conf.port = 8080
     return RedisProxy(conf)
-
 
 def test_parse_get_request(proxy: RedisProxy):
     request = "GET /the_key HTTP/1.1\r\n\r\n"

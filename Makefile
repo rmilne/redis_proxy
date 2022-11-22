@@ -8,15 +8,13 @@ APP_NAME = "redis-proxy"
 # Docker files
 DOCKER_PATH = "docker"
 APP_DOCKERFILE = "${DOCKER_PATH}/app.Dockerfile"
-TEST_DOCKERFILE = "${DOCKER_PATH}/test.Dockerfile"
-REDIS_DOCKERFILE = "${DOCKER_PATH}/redis.Dockerfile"
+COMPOSE_FILE = "${DOCKER_PATH}/integration_test_compose.yaml"
 
 # silent target
 all:
-	@echo "specify a target"
+	@echo "specify a target, eg:  make test"
 
-
-# docker targets
+# docker target - for dev purposes
 .PHONY: build-app-image
 build-app-image:
 	@echo "+ $@"
@@ -25,11 +23,27 @@ build-app-image:
 	@echo "Done"
 	@docker images --format '{{.Repository}}:{{.Tag}}\t\t Built: {{.CreatedSince}}\t\tSize: {{.Size}}' | grep ${APP_NAME}:${VERSION}
 
-
-# test targets
-.PHONY: unit-test
-unit-test:
+# build the docker images for compose
+.PHONY: build
+build:
 	@echo "+ $@"
-	@echo "TODO"
+	@docker-compose -f ${COMPOSE_FILE} build
+
+# run the test container, will start redis + app
+.PHONY: run-test
+run-test:
+	@echo "+ $@"
+	@docker-compose -f ${COMPOSE_FILE} run test
+
+# shut down the compose containers
+.PHONY: down
+compose-down:
+	@echo "+ $@"
+	@docker-compose -f ${COMPOSE_FILE} down
+
+
+# complete test target
+.PHONY: test
+test: build run-test down
 
 

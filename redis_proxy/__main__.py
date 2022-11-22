@@ -68,7 +68,7 @@ def main():
     conf = Config()
     conf.server_address = '0.0.0.0'
     conf.port = 8080
-    conf.redis_host = 'localhost'
+    conf.redis_host = 'redis'
     conf.redis_port = 6379
     conf.cache_size = 128
     conf.cache_timeout = 60

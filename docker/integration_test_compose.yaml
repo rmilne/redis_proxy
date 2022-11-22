@@ -1,0 +1,22 @@
+services:
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+  app:
+    build:
+      context: ..
+      dockerfile: docker/app.Dockerfile
+    entrypoint: python3 -m redis_proxy
+    ports:
+      - '8080:8080'
+    depends_on:
+      - redis
+  test:
+    build:
+      context: ..
+      dockerfile: docker/app.Dockerfile
+    entrypoint: pytest
+    depends_on:
+      - app
+  

@@ -16,7 +16,7 @@ class RedisCacheManager():
         value = self.cache.get(key, None)
         if value is None:
             log.debug(f"cache miss for: {key}")
-            with ProcessPoolExecutor() as pool:
+            with ProcessPoolExecutor(self.config.client_limit) as pool:
                 loop = asyncio.get_event_loop()
                 value = await loop.run_in_executor(pool, self._get_from_redis, key)
         if value is not None:

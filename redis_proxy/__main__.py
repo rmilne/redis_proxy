@@ -56,6 +56,7 @@ class RedisProxy():
         return response
 
     async def run_server(self):
+        log.debug("Starting server...")
         server = await asyncio.start_server(self.request_handler, self.config.server_address, self.config.port)
         # TODO log details
         log.info(f"Started server on {self.config.server_address}:{self.config.port}")
@@ -66,12 +67,7 @@ def main():
     # Parse config
     # TODO argparse or config file
     conf = Config()
-    conf.server_address = '0.0.0.0'
-    conf.port = 8080
-    conf.redis_host = 'redis'
-    conf.redis_port = 6379
-    conf.cache_size = 128
-    conf.cache_timeout = 60
+    conf.parse(*sys.argv[1:])
 
     # Setup logging
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

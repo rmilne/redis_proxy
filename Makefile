@@ -37,7 +37,7 @@ run-test:
 
 # shut down the compose containers
 .PHONY: down
-compose-down:
+down:
 	@echo "+ $@"
 	@docker-compose -f ${COMPOSE_FILE} down
 

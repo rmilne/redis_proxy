@@ -10,11 +10,13 @@ from .cache import RedisCacheManager
 log = logging.getLogger()
 
 NOT_FOUND = "HTTP/1.1 404 Not Found\r\n\r\n"
+SERVICE_UNAVAILABLE = "HTTP/1.1 503 Service Unavailable\r\n\r\n"
 
 class RedisProxy():
     def __init__(self, config: Config) -> None:
         self.config = config
         self.manager = RedisCacheManager(config)
+        self._client_count = 0
 
     def is_http(self, request: str) -> bool:
         token = request.split(maxsplit=3)
@@ -31,28 +33,33 @@ class RedisProxy():
         return tokens[1][1:]
 
     async def request_handler(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        # TODO just read GET - decide what to do after.
-        data = await reader.readuntil(bytes("\r\n\r\n", encoding='ascii'))
-        request = data.decode()
-        log.debug(f"request: >{repr(request)}<")
+        # track client count
+        self._client_count += 1
+        if self.config.client_limit < self._client_count:
+            response = SERVICE_UNAVAILABLE
+        else:
+            data = await reader.readuntil(bytes("\r\n\r\n", encoding='ascii'))
+            request = data.decode()
+            log.debug(f"request: >{repr(request)}<")
 
-        key = self.parse_get_request(request)
-        if key:
-            value = self.manager.get(key)
-            if value:
-                value_str = str(value.decode('utf-8'))
-                response = f"HTTP/1.1 200 OK\r\nContent-Length: {len(value_str)}\r\n\r\n{value_str}\r\n"
+            key = self.parse_get_request(request)
+            if key:
+                value = await self.manager.get(key)
+                if value:
+                    value_str = str(value.decode('utf-8'))
+                    response = f"HTTP/1.1 200 OK\r\nContent-Length: {len(value_str)}\r\n\r\n{value_str}\r\n"
+                else:
+                    response = NOT_FOUND
             else:
                 response = NOT_FOUND
-        else:
-            response = NOT_FOUND
 
         # respond
         writer.write(bytes(response, encoding='ascii'))
         await writer.drain()
         log.debug(f"responded: {repr(response)}")
         writer.close()
-
+        # track client count
+        self._client_count -= 1
         return response
 
     async def run_server(self):
@@ -65,7 +72,6 @@ class RedisProxy():
 
 def main():
     # Parse config
-    # TODO argparse or config file
     conf = Config()
     conf.parse(*sys.argv[1:])
 

@@ -2,10 +2,7 @@ import asyncio
 import logging
 import sys
 
-from typing import Optional
-
 from .config import Config
-from .cache import RedisCacheManager
 from .proxy import RedisProxy
 
 

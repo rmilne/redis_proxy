@@ -1,6 +1,6 @@
 import pytest
 
-from ..__main__ import RedisProxy
+from ..proxy import RedisProxy
 from ..config import Config
 
 

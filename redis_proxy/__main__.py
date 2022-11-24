@@ -12,7 +12,8 @@ log = logging.getLogger()
 NOT_FOUND = "HTTP/1.1 404 Not Found\r\n\r\n"
 SERVICE_UNAVAILABLE = "HTTP/1.1 503 Service Unavailable\r\n\r\n"
 
-class RedisProxy():
+
+class RedisProxy:
     def __init__(self, config: Config) -> None:
         self.config = config
         self.manager = RedisCacheManager(config)
@@ -20,22 +21,24 @@ class RedisProxy():
 
     def is_http(self, request: str) -> bool:
         token = request.split(maxsplit=3)
-        log.debug(f'http detect tokens: {token}')
-        if token[0].upper() == 'GET' and token[2].startswith('HTTP'):
-            return True
-        return False
-    
-    def is_redis(self, request: str) -> bool:
-        if request.startswith('*') and request.endswith('\r\n'):
+        log.debug(f"http detect tokens: {token}")
+        if token[0].upper() == "GET" and token[2].startswith("HTTP"):
             return True
         return False
 
-    async def parse_redis_get(self, request: str, reader: asyncio.StreamReader) -> tuple:
+    def is_redis(self, request: str) -> bool:
+        if request.startswith("*") and request.endswith("\r\n"):
+            return True
+        return False
+
+    async def parse_redis_get(
+        self, request: str, reader: asyncio.StreamReader
+    ) -> tuple:
         lines = [request]
         # strip * and /r/n to get length of array
         array_len = int(request[1:].strip())
-        
-        for x in range(array_len*2):
+
+        for x in range(array_len * 2):
             line = await reader.readline()
             lines.append(line.decode())
             log.debug(f"readline: {line}")
@@ -57,8 +60,8 @@ class RedisProxy():
         return key
 
     def parse_http_get(self, request: str):
-        tokens = request.split(' ')
-        if tokens[0] != 'GET' or len(tokens) < 2:
+        tokens = request.split(" ")
+        if tokens[0] != "GET" or len(tokens) < 2:
             # invalid request
             log.debug(f"invalid get request: {request}")
             return None
@@ -67,7 +70,7 @@ class RedisProxy():
         return tokens[1][1:]
 
     async def parse_get_request(self, reader: asyncio.StreamReader) -> Optional[tuple]:
-        first_line = await reader.readuntil(bytes("\n", encoding='ascii'))
+        first_line = await reader.readuntil(bytes("\n", encoding="ascii"))
         request = first_line.decode()
         log.debug(f"first request line: >{repr(request)}<")
         if self.is_http(request):
@@ -91,7 +94,9 @@ class RedisProxy():
             resp = f"$-1\r\n"
         return resp
 
-    async def request_handler(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    async def request_handler(
+        self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter
+    ):
         # track client count
         ishttp = True
         self._client_count += 1
@@ -118,7 +123,7 @@ class RedisProxy():
                         response = self.redis_response(None)
 
             # respond
-            writer.write(bytes(response, encoding='ascii'))
+            writer.write(bytes(response, encoding="ascii"))
             await writer.drain()
             log.debug(f"responded: {repr(response)}")
             writer.close()
@@ -132,11 +137,14 @@ class RedisProxy():
 
     async def run_server(self):
         log.debug("Starting server...")
-        server = await asyncio.start_server(self.request_handler, self.config.server_address, self.config.port)
+        server = await asyncio.start_server(
+            self.request_handler, self.config.server_address, self.config.port
+        )
         # TODO log details
         log.info(f"Started server on {self.config.server_address}:{self.config.port}")
         async with server:
             await server.serve_forever()
+
 
 def main():
     # Parse config
@@ -151,6 +159,5 @@ def main():
     asyncio.run(proxy.run_server())
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

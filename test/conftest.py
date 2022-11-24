@@ -19,7 +19,7 @@ def server(env):
     while not found and count < 100:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            sock.connect(('127.0.0.1', 8080))
+            sock.connect(("127.0.0.1", 8080))
             found = True
             sock.close()
         except:
@@ -31,19 +31,22 @@ def server(env):
     p.kill()
     p.terminate()
 
+
 @pytest.fixture
 def _redis():
-    host = os.environ.get('RP_REDIS_HOST', '127.0.0.1')
+    host = os.environ.get("RP_REDIS_HOST", "127.0.0.1")
     r = redis.Redis(host)
     yield r
     r.close()
 
+
 @pytest.fixture
 def get():
     def inner_get(key):
-        conn = http.client.HTTPConnection('127.0.0.1', 8080, timeout=20)
+        conn = http.client.HTTPConnection("127.0.0.1", 8080, timeout=20)
         conn.request("GET", f"/{key}")
         resp = conn.getresponse()
-        data = resp.read().decode('utf-8')
+        data = resp.read().decode("utf-8")
         return data
+
     return inner_get

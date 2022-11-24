@@ -3,7 +3,7 @@ import redis
 from redis_proxy.config import Config
 
 
-class RedisClient():
+class RedisClient:
     def __init__(self, config: Config):
         self.config = config
         self.redis = redis.Redis(host=config.redis_host, port=config.redis_port)

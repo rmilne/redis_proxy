@@ -7,11 +7,14 @@ from redis_proxy.redis_client import RedisClient
 
 log = logging.getLogger()
 
-class RedisCacheManager():
+
+class RedisCacheManager:
     def __init__(self, config) -> None:
         self.config = config
-        self.cache = cachetools.TTLCache(maxsize=config.cache_size, ttl=config.cache_timeout)
-    
+        self.cache = cachetools.TTLCache(
+            maxsize=config.cache_size, ttl=config.cache_timeout
+        )
+
     async def get(self, key: str) -> str:
         value = self.cache.get(key, None)
         if value is None:
@@ -31,5 +34,3 @@ class RedisCacheManager():
     def _get_from_redis(self, key: str) -> bytes:
         redis = RedisClient(self.config)
         return redis.get(key)
-
-    

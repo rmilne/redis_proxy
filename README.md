@@ -155,8 +155,9 @@ Development time was spread over 4 days, with lots of learning and research up f
 - 4h :  Learning how to work with and pytest asyncio, it is a different style
 - 1h :  Basic web server, local cache and redis client
 - 2h :  Makefile, Dockerfile, docker-compose setup
-- 4h :  struggling with pytest
 - 2h :  running subprocess of redis_proxy under pytest
+- 2h :  adding parallel workers
+- 1h :  adding the redis protocol support
 - 3h :  Writing this readme
 
 These times are approximate and also reflect some extra time spent learning.

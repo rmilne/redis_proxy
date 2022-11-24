@@ -142,7 +142,7 @@ Unit tests are located: `redis_proxy/redis_proxy/test`
 
 With Redis the time complexity of the [`GET`](https://redis.io/commands/get/) and [`SET`](https://redis.io/commands/set/) commands is O(1).
 
-The cache, in [cachetools.TTLCache](https://github.com/tkem/cachetools/blob/master/src/cachetools/__init__.py#L373), is implemented with an `OrderedDict` and does doubly linked list manipulations.  Python's implementation has a complexity of O(1) for get, set, and delete operations. The author of Python's caching libraries has weighed in on conversations on this [topic]](https://stackoverflow.com/a/8177061).
+The cache, in [cachetools.TTLCache](https://github.com/tkem/cachetools/blob/master/src/cachetools/__init__.py#L373), is implemented with an `OrderedDict` and does doubly linked list manipulations.  Python's implementation has a complexity of O(1) for get, set, and delete operations. The author of Python's caching libraries has weighed in on conversations on this [topic](https://stackoverflow.com/a/8177061).
 
 Generally this service is O(1).
 
@@ -153,11 +153,11 @@ Development time was spread over 4 days, with lots of learning and research up f
 
 - 4h :  Research into libraries and frameworks that were 100% new to me (Tornado, Twisted, asyncio, functools.lru_cache, cachetools, asyncio & multiprocessing pools)
 - 4h :  Learning how to work with and pytest asyncio, it is a different style
-- 2h :  Basic web server, local cache and redis client
+- 1h :  Basic web server, local cache and redis client
 - 2h :  Makefile, Dockerfile, docker-compose setup
 - 4h :  struggling with pytest
 - 2h :  running subprocess of redis_proxy under pytest
-- 2h :  Writing this
+- 3h :  Writing this readme
 
 These times are approximate and also reflect some extra time spent learning.
 

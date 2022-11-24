@@ -70,7 +70,7 @@ class RedisProxy:
         return tokens[1][1:]
 
     async def parse_get_request(self, reader: asyncio.StreamReader) -> Optional[tuple]:
-        first_line = await reader.readuntil(bytes("\n", encoding="ascii"))
+        first_line = await reader.readuntil(bytes("\n", encoding="utf-8"))
         request = first_line.decode()
         log.debug(f"first request line: >{repr(request)}<")
         if self.is_http(request):
@@ -78,7 +78,7 @@ class RedisProxy:
             key = self.parse_http_get(request)
             return True, key
         elif self.is_redis(request):
-            log.debug("http detected")
+            log.debug("redis detected")
             key = await self.parse_redis_get(request, reader)
             return False, key
         else:
@@ -112,7 +112,7 @@ class RedisProxy:
                     else:
                         if value:
                             if ishttp:
-                                response = f"HTTP/1.1 200 OK\r\nContent-Length: {len(value)}\r\n\r\n{value}\r\n"
+                                response = f"HTTP/1.1 200 OK\r\nContent-Length: {len(value)}\r\n\r\n{value}"
                             else:
                                 response = self.redis_response(value)
                         else:
@@ -123,7 +123,7 @@ class RedisProxy:
                         response = self.redis_response(None)
 
             # respond
-            writer.write(bytes(response, encoding="ascii"))
+            writer.write(bytes(response, encoding="utf-8"))
             await writer.drain()
             log.debug(f"responded: {repr(response)}")
             writer.close()

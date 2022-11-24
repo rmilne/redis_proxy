@@ -18,6 +18,14 @@ This service acts as a caching layer in front of Redis.
 1. [TTLCache](https://cachetools.readthedocs.io/en/latest/#cachetools.TTLCache) provided by the [cachetools](https://github.com/tkem/cachetools) package that has Least Recently Used (LRU) behaviour.
 1. Pool of processes that connect to Redis in parallel, using [multiprocessing](https://docs.python.org/3/library/multiprocessing.html) and the [Redis](https://redis.io/) client [library](https://github.com/redis/redis-py)
 
+## Prerequisites:
+
+- docker
+- docker-compose
+- make
+
+Tested on Windows WSL2, MacOS, Linux
+
 ## Usage:
 
 ```

@@ -12,10 +12,10 @@ This service acts as a caching layer in front of Redis.
 1. In the case of a cache miss: retrieve the `value` from its backing Redis instance and populate the local cache
 1. Return the value in the response
 
-`redis_proxy` is code in python with 3 main features:
+`redis_proxy` is implemented with Python and has 3 main features:
 
-1. TCP Server built with [asyncio](https://docs.python.org/3/library/asyncio.html), that provides an event loop to process connections concurrently with an async/await syntax.
-1. [TTLCache](https://cachetools.readthedocs.io/en/latest/#cachetools.TTLCache) provided by the [cachetools](https://github.com/tkem/cachetools) package that has Least Recently Used (LRU) behaviour.
+1. TCP Server built with [asyncio](https://docs.python.org/3/library/asyncio.html), which provides an event loop to process connections concurrently with an async/await syntax.
+1. [TTLCache](https://cachetools.readthedocs.io/en/latest/#cachetools.TTLCache) provided by the [cachetools](https://github.com/tkem/cachetools) package, which has Least Recently Used (LRU) behaviour.
 1. Pool of processes that connect to Redis in parallel, using [multiprocessing](https://docs.python.org/3/library/multiprocessing.html) and the [Redis](https://redis.io/) client [library](https://github.com/redis/redis-py)
 
 ## Prerequisites:
@@ -119,7 +119,7 @@ cached_value = cache.get(key, None)
 
 #### Redis workers
 
-The [redis-py](https://github.com/redis/redis-py) library the obvious choice to connect to the Redis datastore.  It is also simple:
+The [redis-py](https://github.com/redis/redis-py) library was the obvious choice to connect to the Redis datastore.  It is also simple:
 
 ```python
 import redis
@@ -130,7 +130,7 @@ value = client.get(key)
 
 #### Parallel concurrency
 
-The bonus requirement of `parallel concurrency` led me to wonder if asyncio is an acceptable solution, event loops are `concurrent` but not `parallel` as explained in this [article](https://medium.com/@itIsMadhavan/concurrency-vs-parallelism-a-brief-review-b337c8dac350).  Only separate processes are truly parallel in Python because the Global Interpret Lock (GIL) disqualifies Python threads.  A ProcessPool was used in to allow each redis client their own parallel execution environment, but I suspect that this may be less performant than using asyncio here as well.   The workload is I/O intensive, not CPU intensive and multiple processes have a communication (IPC) overhead to send results back to the cache.  The shared local cache would also suffer if it were shared between the process pool, so leaving it in the single threaded portion of the server was best.
+The bonus requirement of `parallel concurrency` led me to wonder if asyncio is an acceptable solution as event loops are `concurrent` but not `parallel`, as explained in this [article](https://medium.com/@itIsMadhavan/concurrency-vs-parallelism-a-brief-review-b337c8dac350).  Only separate processes are truly parallel in Python because the Global Interpreter Lock (GIL) disqualifies Python threads.  A ProcessPool was used to allow each redis client to have their own parallel execution environment, but I suspect that this may be less performant than using asyncio here as well.   The workload is I/O intensive, not CPU intensive and multiple processes have a communication (IPC) overhead to send results back to the cache.  The shared local cache would also suffer if it were shared between the process pool, so leaving it in the single threaded portion of the server was best.
 
 #### Implementation assumptions and limitations
 
@@ -189,4 +189,7 @@ Concerns:
 - large redis values (>100000 characters) seem to fail when requesting them with python requests and http.client libraries, there may be an issue with how I've implemented the server
 - testing parallel concurrency is challenging, depending on the host the timing of worker processing is inconsistent
 - I had hoped to follow TDD, but test setup added a lot of up-front friction.  Exploratory development took precedence
-- my [trello](https://trello.com/b/JJF4N1CP/rescale-redis-proxy-project) to track my tasks was helpful, but isn't an interesting project artifact
+
+Artifacts:
+
+- my [trello](https://trello.com/b/JJF4N1CP/rescale-redis-proxy-project) to track my tasks was helpful, but isn't an actively useful project artifact
